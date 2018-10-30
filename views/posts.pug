@@ -13,20 +13,41 @@ html(lang="ja")
       div
         button(type="submit") 投稿
     h2 投稿一覧
+    //- 全投稿データの要素である、各データについて(pythonでいう)for文を回す
     each post in posts
+      //- ----- 投稿IDと投稿者(管理人orトラッキングID)の表示 -----
+      //- 投稿者が管理人かどうかのフラグ変数
       - var isPostedByAdmin = (post.postedBy === 'admin')
+      //- 投稿者が管理人かどうか区別できるようにする
       if isPostedByAdmin
         h3 #{post.id} : 管理人 ★
       else
         h3 #{post.id} : ID:#{post.trackingCookie}
+
+      //- ----- 投稿内容の表示 -----
+      //- #{hoge}内に書かれたコードは、そのまま表示される(エスケープシーケンスをエスケープシーケンスと認識できない)
+      //- p #{post.content}
+      //- != の後に書かれたコードは、HTMLとして解釈される(エスケープシーケンスもそれと解釈する)
       p!= post.content
+
+      //- ----- 投稿日時の表示 -----
       p 投稿日時: #{post.createdAt}
+      //- - var isDeletable = (user === post.postedBy || user === 'admin')
+
+      //- 管理人かどうかのフラグ変数
       - var isAdmin = (user === 'admin')
+
+      //- 管理者に限り、投稿者のユーザー名も表示
       if isAdmin
         p 投稿者: #{post.postedBy}
+
+      //- 投稿者本人or管理人に限り、削除ボタンも表示
       - var isDeletable = (user === post.postedBy || isAdmin)
       if isDeletable
+        //- POSTメソッドで/posts?delete=1へリクエストを送る
         form(method="post" action="/posts?delete=1")
+          //- 投稿固有のIDを送る(type属性がhidden->画面には非表示の部品となる)
           input(type="hidden" name="id" value=post.id)
+          //- 削除ボタンの作成
           button(type="submit") 削除
       hr
